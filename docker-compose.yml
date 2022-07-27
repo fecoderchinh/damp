@@ -1,0 +1,35 @@
+version: "3"
+
+services:
+  php:
+    image: php:8-fpm
+    ports:
+      - "9000:9000"
+    volumes:
+      - ./www:/app
+
+  apache:
+    image: bitnami/apache:latest
+    ports:
+      - 80:8080
+    volumes:
+      - ./apache.conf:/vhosts/myapp.conf:ro
+      - .:/app
+    depends_on:
+      - php
+
+  db:
+    image: mysql
+    command: --default-authentication-plugin=mysql_native_password
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - "8080:80"
+    volumes:
+      - ./uploads.ini:/usr/local/etc/php/conf.d/php-phpmyadmin.ini
